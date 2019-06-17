@@ -3,7 +3,9 @@
     h3 写真をアップロードしてください
     img(:src="imagePath")
     input(type="file" id="inputFile" @change="uploadImage")
-    button(type="button" @click="getImagePredict") 生成
+    button(type="button" @click="getImagePredict" :disabled="isUploading" v-if="imagePath") 生成
+    div
+      div(v-for="c in colors" :style="{'background': c.raw_hex}").ball
 </template>
 
 <script>
@@ -19,7 +21,8 @@ export default {
     return {
       imagePath: '',
       isUploading: false,
-      isImgDownloading: false
+      isImgDownloading: false,
+      colors: []
     }
   },
   methods:{
@@ -45,6 +48,7 @@ export default {
     getImagePredict:function(){
       app.models.predict(Clarifai.COLOR_MODEL,imgDlUrl).then(res=>{
         console.log(res)
+        this.colors=res.outputs[0].data.colors
       },error=>{
         console.log(error)
       })
@@ -53,3 +57,15 @@ export default {
 }
 </script>
 
+<style lang="scss" scoped>
+img{
+  height: 250px;
+  width: auto;
+}
+.ball{
+  height: 100px;
+  width: 100px;
+  border-radius: 50%;
+  display: inline-block;
+}
+</style>
