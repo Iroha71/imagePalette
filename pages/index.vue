@@ -3,6 +3,7 @@
     h3 写真をアップロードしてください
     img(:src="imagePath")
     input(type="file" id="inputFile" @change="uploadImage")
+    button(type="button" @click="getImagePredict") 生成
 </template>
 
 <script>
@@ -16,7 +17,9 @@ let imgDlUrl=''
 export default {
   data(){
     return {
-      imagePath: ''
+      imagePath: '',
+      isUploading: false,
+      isImgDownloading: false
     }
   },
   methods:{
@@ -38,6 +41,13 @@ export default {
           })
         })
       }
+    },
+    getImagePredict:function(){
+      app.models.predict(Clarifai.COLOR_MODEL,imgDlUrl).then(res=>{
+        console.log(res)
+      },error=>{
+        console.log(error)
+      })
     }
   }
 }
