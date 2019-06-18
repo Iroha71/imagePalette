@@ -1,14 +1,14 @@
 <template lang="pug">
   div
-    h3(v-if="isUpLoaded") 写真がアップロードされました!
-    h3(v-else) 写真をアップロードしてください
+    h3#desc 写真をアップロードしてください
     img(:src="imagePath")
+    br
     input(type="file" id="inputFile" @change="uploadImage")
-    button(type="button" @click="getImagePredict" :disabled="isUploading" v-if="imagePath") 生成
-    div
-      div(v-for="c in colors" :style="{'background': c.raw_hex}").ball
-        p(v-if="c.raw_hex!=='#ffffff'") {{c.raw_hex}}
-        p.white(v-else) {{c.raw_hex}}
+    button#makePalette(type="button" @click="getImagePredict" :disabled="isUploading" v-if="imagePath" disabled) パレット作成
+    p#paletteDesc
+    div(v-for="c in colors")
+      div(:style="{'background': c.raw_hex}").ball
+      p {{c.raw_hex}}
 </template>
 
 <script>
@@ -31,6 +31,8 @@ export default {
   },
   methods:{
     uploadImage:function(){
+      const desc=document.getElementById('desc')
+      desc.textContent="アップロード中です、お待ちください"
       const files=event.target.files
       if(files.length>=1){
         const reader=new FileReader()
@@ -41,9 +43,11 @@ export default {
         this.imagePath=files[0].name
         const storageRef=firebase.storage().ref(files[0].name);
         storageRef.put(files[0]).then(function(snapshot){
-          console.log('image is uploaded!')
           firebase.storage().ref(files[0].name).getDownloadURL().then(function(url){
             imgDlUrl=url
+            desc.textContent="画像がアップロードされました！「パレット作成」ボタンを押してください"
+            const makePalette=document.getElementById('makePalette')
+            makePalette.disabled=""
             console.log(`image url is ${url}`)
           })
         })
@@ -51,9 +55,13 @@ export default {
       }
     },
     getImagePredict:function(){
+      desc.textContent="画像をアップロードしてください"
+      makePalette.disabled="disabled"
+      paletteDesc.textContent="作成中です・・・"
       app.models.predict(Clarifai.COLOR_MODEL,imgDlUrl).then(res=>{
         console.log(res)
         this.colors=res.outputs[0].data.colors
+        paletteDesc.textContent="パレットを作成しました！"
       },error=>{
         console.log(error)
       })
@@ -67,25 +75,18 @@ img{
   height: 250px;
   width: auto;
 }
-.ball{
-  height: 100px;
-  width: 100px;
-  border-radius: 50%;
+div{
   display: inline-block;
-  position: relative;
-  p{
-    text-align: center;
-    position: absolute;
-    width: 80px;
-    height: 20px;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    left: 0;
-    margin: auto;
-  }
-  .white{
-    color: white;
+  .ball{
+    height: 100px;
+    width: 100px;
+    border-radius: 50%;
+    position: relative;
+    p{
+      text-align: center;
+      width: 80px;
+      height: 20px;
+    } 
   }
 }
 </style>
