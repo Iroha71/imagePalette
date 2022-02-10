@@ -16,7 +16,7 @@
     "bootstrap-vue": "^2.0.0-rc.11",
     "clarifai": "^2.9.0",
     "firebase": "^6.2.0",
-    "node-sass": "^4.12.0",
+    "node-sass": "^7.0.0",
     "nuxt": "^2.0.0",
     "pug": "^2.0.3",
     "pug-plain-loader": "^1.0.0",
